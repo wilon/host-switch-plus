@@ -13,7 +13,12 @@
   <body>
   <div class="inner">
     <h1>Host Switch Plus
-        <small>Default: <select id="default"><option value="DIRECT">Direct</option><option value="SYSTEM">System</option><option value="PROXY 127.0.0.1:8787; DIRECT">Lantern</option><option value="DIRECT">UserDefined</option></select>
+        <small>Default:
+        <select id="default">
+            <option value="DIRECT">Direct</option>
+            <option value="SYSTEM">System</option>
+            <option id="UserDefined">UserDefined</option>
+        </select>
         &nbsp;&nbsp;
         <label class="checkbox"><input id="status" type="checkbox" value="1" checked><span>Enable</span></label></small>
     </h1>
@@ -105,13 +110,15 @@
                         <br>现有模式Default选项:
                         <br>Direct: DIRECT
                         <br>System: SYSTEM
-                        <br>Lantern: PROXY 127.0.0.1:8787; DIRECT
+                    </small>
+                    <br>
+                    <small>您也可以自定义：
                     </small>
                 </label>
                 <input type="text" id="input_mode" class="form-control input-sm" placeholder="proxy model" value="">
             </div>
             <div class="btnLine">
-                <input type="submit" value="Submit">
+                <input type="submit" value="Save UserDefined">
             </div>
         </form>
     </div>
