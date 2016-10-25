@@ -231,10 +231,14 @@ $(function () {
     $("#status").prop('checked', model.getStatus()).change(function () {
         model.setStatus(this.checked, $('#default').val());
     });
-    $('#default option').eq(3).val(model.getDefaultMode());
-    $('#input_mode').val(model.getDefaultMode());
-    $('#default').val(model.getDefaultMode()).change(function(){
-        $('#input_mode').val(model.getDefaultMode());
+    var mode = model.getDefaultMode();
+    $('#default option').eq(3).val(mode);
+    if (mode != 'DIRECT' && mode != 'SYSTEM') {
+        $('#UserDefined').val(mode)
+    }
+    $('#input_mode').val(mode);
+    $('#default').val(mode).change(function(){
+        $('#input_mode').val(mode);
         model.setStatus($("#status")[0].checked, $(this).val());
     });
 
