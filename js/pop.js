@@ -62,7 +62,8 @@ $(function () {
         evt.initEvent("click", false, false);
         aLink.download = fileName;
         aLink.href = URL.createObjectURL(blob);
-        aLink.dispatchEvent(evt);
+        // aLink.dispatchEvent(evt);
+        aLink.click();
     }
 
     var labels = $('#label-filter');
