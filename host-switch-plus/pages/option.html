@@ -35,30 +35,31 @@
             <div id="formNote" class="formNote" style="display:none;"></div>
             <input type="hidden" name="id" id="item-id">
             <div class="field">
-                <label for="ip" class="col-xs-2 control-label">* IP</label>
+                <label for="ip" class="col-xs-2 control-label">* IP：</label>
                 <input type="text" autocomplete="off" placeholder="127.0.0.1 or 127.0.0.1:8888" id="ip" list="ip-list">
                 <datalist id="ip-list"></datalist>
             </div>
 
             <div class="field">
-                <label for="domain">* Domain</label>
+                <label for="domain">* Domain：</label>
                 <input type="text" placeholder="www.example.com" id="domain" list="domain-list">
                 <datalist id="domain-list"></datalist>
             </div>
 
             <div class="field">
-                <label>Tags</label>
-                <span id="div_labels" class="checkboxs">
-                    <label class="checkbox"><input type="checkbox" name="labels[]" value="prod">prod</label>
-                    <label class="checkbox"><input type="checkbox" name="labels[]" value="dev">dev</label>
-                    <label class="checkbox"><input type="checkbox" name="labels[]" value="test">test</label>
-                </span>
-                <input type="text" id="add_labels" placeholder="Example: test1,翻墙">
+                <label>Tags：</label>
+                <span id="div_labels" class="checkboxs"></span>
+                <input type="text" id="add_labels" placeholder="Test,Dev,Shadowsockets,翻墙">
             </div>
             <div class="field">
-                <label for="note">Note</label>
+                <label for="note">Note：</label>
                 <input type="text" placeholder="Note" id="note">
             </div>
+            <div class="field">
+                <label for="note">Order：</label>
+                <input type="number" placeholder="Order" id="order" value="1"> <span>The greater is preferred. 排序：数值越大越靠前，代理匹配时优先级越高</span>
+            </div>
+
 
             <div class="field">
                 <label></label>
@@ -95,6 +96,7 @@
                         <th>Domain</th>
                         <th>Tag</th>
                         <th>Note</th>
+                        <th>Order</th>
                         <th width="100"></th>
                     </tr>
                 </thead>
@@ -127,12 +129,13 @@
     </div>
     </div>
     <script id="host-item" type="text/template">
-        <tr id="host-{=id}" data-id="{=id}" data-domain="{=domain}" data-ip="{=ip}" title="Updated at: {=uptime}">
+        <tr id="host-{=id}" data-id="{=id}" title="Updated at: {=uptime}">
             <td><input name="id[]" value="{=id}" type="checkbox"></td>
             <td>{=ip}</td>
             <td>{=domain}</td>
             <td class="tags">{=tags}</td>
             <td class="note">{=note}</td>
+            <td>{=order}</td>
             <td>
                 <span class="actions"><a href="#" data-id="{=id}" class="delete">Delete</a> <i class="I">|</i> <a href="#" data-id="{=id}" class="edit">Edit</a></span>
             </td>

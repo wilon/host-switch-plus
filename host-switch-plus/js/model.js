@@ -106,7 +106,21 @@
                 result.push(hosts[id]);
             }
         }
-        return result;
+        return model.sortHostsResult(result);
+    }
+
+    model.getHostById = function (id) {
+        var result = []
+        var hosts = loadData('hosts');
+        return hosts[id];
+    }
+
+    model.sortHostsResult = function(result){
+        return result.sort(function(x, y){
+                var a = Number(x.order),
+                    b = Number(y.order);
+                return (isNaN(a) ? 1 : a) < (isNaN(b) ? 1 : b);
+            });
     }
 
     //添加主机
@@ -224,17 +238,14 @@
      * 获取标签的统计
      * @returns {Array}
      */
-    model.countTags = function() {
-        var tags = {
-            'prod': 0,
-            'dev': 0,
-            'test': 0
-        }
+    model.countTags = function () {
+        var tags = {};
         var hosts = loadData('hosts');
+        var untag = 0;
         for (var i in hosts) {
             if (hosts.hasOwnProperty(i)) {
                 var host = hosts[i];
-                if (host.tags && host.tags.push) {
+                if (host.tags && host.tags.length) {
                     for (var x = 0; x < host.tags.length; x++) {
                         var tag = host.tags[x];
                         if (!tags[tag]) {
@@ -242,8 +253,9 @@
                         }
                         tags[tag]++;
                     }
+                } else {
+                    untag++;
                 }
-
             }
         }
         var result = []
@@ -255,6 +267,7 @@
                 });
             }
         }
+        if( untag ) result.push({name: '', count: untag});
         return result;
     }
 
@@ -315,7 +328,7 @@
             }
         }
 
-        return results;
+        return model.sortHostsResult(results);
     }
 
     //重新加载
@@ -409,7 +422,6 @@
     }
 
     model.enableHosts = function(ids) {
-
         var hosts = loadData('hosts');
         for (var i = 0; i < ids.length; i++) {
             if (hosts[ids[i]]) {
@@ -420,7 +432,7 @@
         saveData('hosts', hosts);
         model.reload();
     }
-    model.disableHosts = function(ids) {
+    model.disableHosts = function (ids) {
         var hosts = loadData('hosts');
         for (var i = 0; i < ids.length; i++) {
             if (hosts[ids[i]]) {
@@ -446,9 +458,15 @@
         model.reload();
     }
 
+    function refreshDataForBk(do_off){
+        chrome.extension.sendRequest(do_off ? [] : model.getEnabledHosts(), function(data){
+            // do Something;
+        });
+    }
 
     function saveData(name, value) {
         localStorage[name] = JSON.stringify(value);
+        refreshDataForBk();
     }
 
     function loadData(name) {

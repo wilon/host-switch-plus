@@ -37,7 +37,9 @@ $(function() {
         div_labels.html('');
         for (var i = 0; i < tags.length; i++) {
             var tag = tags[i];
+            if( ! tag.count ) continue;
             total += tag.count;
+            if( ! tag.name ) continue;
             labels_html += '<a href="#" data-tag="' + tag.name + '">' + tag.name + '(' + tag.count + ')</a>';
             label_checks += '<label class="checkbox"><input type="checkbox" name="labels[]" value="' + tag.name + '">' + tag.name + '</label>';
         }
@@ -72,19 +74,19 @@ $(function() {
     labels.on('click', 'a', function() {
         var tag = $(this).data('tag'),
             s = '';
-        if ($(this).is('.action')) {
-            if (labels.is('.noBulk')) return false;
+        if( $(this).hasClass('action') ){
+            if( labels.hasClass('noBulk') ) return false;
             // if( tag ){
             var ids = [],
                 all_action = true;
             var trs = $('#tbody-hosts').children();
 
-            $('#tbody-hosts').find('.host-status').each(function() {
-                if (!$(this).data('status')) {
-                    all_action = false;
-                    return false;
-                }
-            });
+                $('#tbody-hosts').find('.host-status').each(function(){
+                    if( ! Number($(this).data('status')) ){
+                        all_action = false;
+                        return false;
+                    }
+                });
 
             if (!all_action) {
                 var this_ds = {};
@@ -183,14 +185,7 @@ $(function() {
                             model.removeHost($this.data('id'));
                             $item.remove();
                         }
-                    } else { // Edit
-                        var info = {
-                            id: $item.data('id'),
-                            ip: $item.data('ip'),
-                            domain: $item.data('domain'),
-                            tag: $item.find('.tags').text().split(', '),
-                            note: $item.find('.note').text()
-                        }
+                        var info = model.getHostById($item.data('id'));
                         var $addForm = $('#addForm');
                         addForm.reset();
 
@@ -198,9 +193,9 @@ $(function() {
                         $addForm.addClass('current').find(':input').each(function() {
                             var $input = $(this);
                             var name = $input.attr('name') || $input.attr('id');
-                            if (name) {
-                                if (name === 'labels[]') {
-                                    if (info.tag.indexOf($input.val()) > -1) {
+                            if( name ){
+                                if( name === 'labels[]' ){
+                                    if( info.tag && info.tag.indexOf($input.val()) > -1 ){
                                         this.checked = true;
                                     }
                                 } else $input.val(info[name]);
@@ -257,11 +252,13 @@ $(function() {
 
     $('#tbody-hosts').on('click', 'a.host-status', function() {
         var status_obj = $(this);
-        var domain = status_obj.data('domain');
-        var status = status_obj.data('status');
         var id = status_obj.data('id');
+        var host = model.getHostById(id);
+        var domain = host.domain,
+            status = host.status;
         var ids = [id];
-        if (status == '1') { // 禁用
+
+        if(status == '1'){ // 禁用
             render_status(ids, 0);
             model.disableHosts(ids);
         } else { // 启用
