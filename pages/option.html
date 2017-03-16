@@ -1,28 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Add Hosts</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Snail Hosts</title>
     <link rel="stylesheet" href="/css/style.css">
-    <script src="/libs/jquery.min.js"></script>
+    <script src="/libs/jquery-3.1.1.min.js"></script>
     <script src="/libs/tpl.js"></script>
     <script src="/js/model.js"></script>
     <script src="/js/pop.js"></script>
     <script src="/js/option.js"></script>
-  </head>
-  <body>
-  <div class="inner">
-    <h1>Host Switch Plus
-        <small>Default:
-        <select id="default">
-            <option value="DIRECT">Direct</option>
-            <option value="SYSTEM">System</option>
-            <option value="PROXY 127.0.0.1:50291; DIRECT">Lantern</option>
-            <option id="UserDefined">UserDefined</option>
-        </select>
-        &nbsp;&nbsp;
-        <label class="checkbox"><input id="status" type="checkbox" value="1" checked><span>Enable</span></label></small>
-    </h1>
+</head>
+<body>
+    <div class="inner">
+        <h1>Snail Hosts
+            <small>Default:
+            <select id="default">
+                <option value="DIRECT">Direct</option>
+                <option value="SYSTEM">System</option>
+                <option value="PROXY 127.0.0.1:50291; DIRECT">Lantern</option>
+                <option id="UserDefined">UserDefined</option>
+            </select>
+            &nbsp;&nbsp;
+            <label class="checkbox"><input id="status" type="checkbox" value="1" checked><span>Enable</span></label></small>
+        </h1>
 
     <nav id="add_tab" class="tabNavs">
         <a href="#" data-target="#addForm" class="current" title="新增 Hosts 配置">Add</a>
