@@ -1,30 +1,35 @@
 /**
+ *
+ * Setting pages action.
+ *
  * Created by sdm on 14-1-18.
  * Updated by Riant at 2015-04-16
  */
-$(function () {
-    model.setAutoIp(function(all){
+$(function() {
+    model.setAutoIp(function(all) {
         var ipList = '';
         for (var i = 0; i < all.length; i++) {
-            ipList += '<option value="'+ all[i].ip +'">';
+            ipList += '<option value="' + all[i].ip + '">';
         }
         $('#ip-list').html(ipList);
     });
-    model.setAutoDomain(function(all){
+    model.setAutoDomain(function(all) {
         var domainList = '';
         for (var i = 0; i < all.length; i++) {
-            domainList += '<option value="'+ all[i].domain +'">'
+            domainList += '<option value="' + all[i].domain + '">'
         }
         $('#domain-list').html(domainList);
     });
 
     var last_search = model.getkws();
     var kws = []
-    $(model.getkws()).each(function (i, v) {
-        kws.push({'kw': v});
+    $(model.getkws()).each(function(i, v) {
+        kws.push({
+            'kw': v
+        });
     });
 
-    Date.prototype.Format = function (fmt) { //author: meizz
+    Date.prototype.Format = function(fmt) { //author: meizz
         var o = {
             "M+": this.getMonth() + 1, //月份
             "d+": this.getDate(), //日
@@ -41,7 +46,7 @@ $(function () {
     }
 
 
-    $('#addForm').on('submit', function(){
+    $('#addForm').on('submit', function() {
         // console.log('普通添加模式');
         var info = {
             'id': Number($('#item-id').val()),
@@ -49,17 +54,17 @@ $(function () {
             'domain': $('#domain').val(),
             'note': $('#note').val(),
             'tags': [],
-            'status':1,
+            'status': 1,
             'uptime': new Date().Format("yyyy-MM-dd hh:mm:ss")
         };
         var add_tags = $('#add_labels').val().split(',');
-        $(add_tags).each(function (i, v) {
+        $(add_tags).each(function(i, v) {
             if (v) {
                 info.tags.push(v);
             }
         });
 
-        $('#div_labels input[type="checkbox"]:checked').each(function () {
+        $('#div_labels input[type="checkbox"]:checked').each(function() {
             info.tags.push(this.value);
         });
 
@@ -70,16 +75,16 @@ $(function () {
         return false;
     });
 
-    $('#bulkForm').on('submit', function(){
+    $('#bulkForm').on('submit', function() {
         var infos = $('#bulkAdd').val().split('\n');
         var rules = /^\s*([^\s]+)\s*([^\s]+)\s*([^\s]+)?\s*([^\s]+)?\s*$/;
-        for( var i = 0, len = infos.length; i < len; i++ ){
+        for (var i = 0, len = infos.length; i < len; i++) {
             var info = $.trim(infos[i]);
-            if( info.indexOf('#') === 0 ){
+            if (info.indexOf('#') === 0) {
                 continue;
             }
             var info = rules.exec(info);
-            if( info.length >= 3 ){
+            if (info.length >= 3) {
                 var item = {
                     'ip': $.trim(info[1]),
                     'domain': $.trim(info[2]),
@@ -90,10 +95,10 @@ $(function () {
                 };
 
                 var tags = $.trim(info[3]) ? $.trim(info[3]).split(',') : '';
-                if( tags.length ){
+                if (tags.length) {
                     item.tags = [];
-                    $(tags).each(function(i){
-                        if( tags[i] !== '' ) item.tags.push(tags[i]);
+                    $(tags).each(function(i) {
+                        if (tags[i] !== '') item.tags.push(tags[i]);
                     });
                 }
 
@@ -105,15 +110,17 @@ $(function () {
         return false;
     });
 
-    $('#defaultMode').on('submit', function(){
-        var mode = $('#input_mode').val();
+    $('#defaultMode').on('submit', function() {
+        var mode = $('#input_mode').val(),
+            ignore_val = $('#input_ignore').val(),
+            ignore_list = ignore_val.split("\n");
+        model.setStatus($("#status")[0].checked, mode, ignore_list);
         var res = $('#default option').each(function() {
             if ($(this).val() == mode) {
                 return false;
             }
         });
         if (res != false) {
-            model.setStatus($("#status")[0].checked, mode);
             $('#UserDefined').val(mode)
         }
         $('#default').val(mode)
@@ -122,11 +129,11 @@ $(function () {
 
 
     //  批量操作
-    $('#select_all').change(function () {
+    $('#select_all').change(function() {
         $('#tbody-hosts').find('input[type=checkbox]').prop('checked', this.checked).change();
     });
 
-    $('#tbody-hosts').on('change', 'input', function (e) {
+    $('#tbody-hosts').on('change', 'input', function(e) {
         var tr = $(this).parents('tr');
         if ($(this).prop('checked')) {
             tr.addClass('success');
@@ -136,8 +143,8 @@ $(function () {
         return false;
     });
 
-    $('#but_del').click(function () {
-        $('input[type=checkbox]:checked').each(function () {
+    $('#but_del').click(function() {
+        $('input[type=checkbox]:checked').each(function() {
             model.removeHost(this.value);
         });
         $('input[type=checkbox]:checked').parents('tr').remove();
@@ -145,10 +152,10 @@ $(function () {
     });
 
 
-    $('#add_tab').find('a').on('click', function(){
+    $('#add_tab').find('a').on('click', function() {
         var target = $(this).data('target');
-        if( target ){
-            if( $(target).is('#addForm') ){
+        if (target) {
+            if ($(target).is('#addForm')) {
                 $('#item-id').val('');
                 ($(target)[0]).reset();
             }
@@ -160,5 +167,5 @@ $(function () {
         }
     });
 
-    if( location.hash === '#hosts' ) $('#listBtn').trigger('click');
+    if (location.hash === '#hosts') $('#listBtn').trigger('click');
 });

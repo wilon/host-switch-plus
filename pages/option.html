@@ -17,6 +17,7 @@
         <select id="default">
             <option value="DIRECT">Direct</option>
             <option value="SYSTEM">System</option>
+            <option value="PROXY 127.0.0.1:50291; DIRECT">Lantern</option>
             <option id="UserDefined">UserDefined</option>
         </select>
         &nbsp;&nbsp;
@@ -110,12 +111,14 @@
                         <br>现有模式Default选项:
                         <br>Direct: DIRECT
                         <br>System: SYSTEM
+                        <br>Lantern: PROXY 127.0.0.1:50291; DIRECT (3.x)
                     </small>
                     <br>
-                    <small>您也可以自定义：
-                    </small>
+                    <small>您也可以自定义：</small>
+                    <input type="text" id="input_mode" class="form-control input-sm" placeholder="proxy model" value="">
+                    <small>忽略名单</small>
+                    <textarea id="input_ignore" name="ignore" placeholder="一行一条记录"></textarea>
                 </label>
-                <input type="text" id="input_mode" class="form-control input-sm" placeholder="proxy model" value="">
             </div>
             <div class="btnLine">
                 <input type="submit" value="Save UserDefined">
