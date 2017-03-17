@@ -2,12 +2,13 @@ body { font-size: 14px; line-height: 1.5; color: #333; font-family: Arial, 'Micr
 .inner { min-width: 500px; max-width: 960px;}
 
 .popup .inner { padding: 5px 10px 10px;}
-h1, h2 { margin: 0 0 0.4em;}
+/*h1, h2 { margin: 0 0 0.4em;}*/
 h1 small { font-size: 14px; margin-left: 10px;}
 
-.popup h1 { font-size: 18px; position: relative;}
+.popup h1 {font-size: 20px; position: absolute;-webkit-margin-before: 3px;}
 .popup h1 .checkbox { position: absolute; bottom: 0; right: 0; font-size: 14px;}
 .popup h1 small { font-weight: normal; font-size: 12px;}
+#input_search { margin-left: 120px; max-width: 155px}
 
 a { text-decoration: none; color: #FFA200;}
 i.I { padding: 0 5px; color: #999;}
