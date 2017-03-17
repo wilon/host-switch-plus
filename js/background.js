@@ -1,5 +1,6 @@
 var enableHosts = [];
 
+// load ip address
 chrome.webRequest.onCompleted.addListener(function (details) {
     setTimeout(function(){
         details.req = 'showip';
@@ -16,6 +17,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     enableHosts = request;
 });
 
+// Get ip location message
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     var location = localStorage[request.ip] || getIpLocation(request.ip);
     localStorage[request.ip] = location;

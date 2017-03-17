@@ -8,7 +8,7 @@ h1 small { font-size: 14px; margin-left: 10px;}
 .popup h1 {font-size: 20px; position: absolute;-webkit-margin-before: 3px;}
 .popup h1 .checkbox { position: absolute; bottom: 0; right: 0; font-size: 14px;}
 .popup h1 small { font-weight: normal; font-size: 12px;}
-#input_search { margin-left: 120px; max-width: 155px}
+#search-input { margin-left: 120px; max-width: 155px}
 
 a { text-decoration: none; color: #FFA200;}
 i.I { padding: 0 5px; color: #999;}

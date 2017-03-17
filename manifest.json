@@ -13,6 +13,7 @@
       "js/background.js"
     ]
   },
+  "default_locale": "en",
   "options_page": "pages/option.html",
   "content_scripts": [{
     "exclude_globs": [  ],
