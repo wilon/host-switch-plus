@@ -64,6 +64,6 @@ tr:hover .actions { display: block;}
 .bulkActions { font-size: 12px;}
 .bulkActions a { display: inline-block; margin-right: 5px; padding: 3px 10px; background: #3B8DBD; color: #FFF; border-radius: 3px;}
 .bulkActions a:hover { background: #FFA200;}
-#label-filter a { display: inline-block; margin-right: 8px;}
-#label-filter a.action { color: #000;}
+#tags-filter a { display: inline-block; margin-right: 8px;}
+#tags-filter a.action { color: #000;}
 #btn_search { border-radius: 0 3px 3px 0;}

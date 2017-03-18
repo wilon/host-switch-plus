@@ -28,23 +28,38 @@ var snailHostsLang = {
             zh_CN: '双击全部开启/关闭。'
         },
     },
-	init: function(langType) {
-        var t = this;
-        t.lang = langType;
-        $("[lang]").each(function() {
-            var lang = $(this).attr('lang');
-            $(this).text(t.getLang(lang));
-        });
-        $("[langTitle]").each(function() {
-            var langTitle = $(this).attr('langTitle');
-            $(this).attr('title', t.getLang(langTitle));
-        });
+    supportAttrName: [
+        'langText',
+        'langTitle'
+    ],
+	init: function(langType = false) {
+        var THIS = this;
+        langType && THIS.lang = langType;
+        THIS.supportAttrName.map(function(attrName) {
+            attr = attrName.replace('lang', '').toLocaleLowerCase();
+            $("["+attrName+"]").each(function() {
+                var langId = $(this).attr(attrName);
+                if (attr == 'text') {
+                    $(this).text(THIS.getLang(langId));
+                } else {
+                    $(this).attr(attr, THIS.getLang(langId));
+                }
+            });
+            return;
+        })
+
 	},
     getLang: function (langMark) {
         try {
             return this.langInfo[langMark][this.lang];
         } catch (e) {
             return 'null';
+        }
+    },
+    setElemLang: function (elem) {
+        try {
+            elem.text(this.getLang(elem.Attr('lang')))
+        } catch (e) {
         }
     },
 }

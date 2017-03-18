@@ -172,13 +172,10 @@
         if (!kw) {
             return;
         }
-        //存储搜索记录
         var kws = loadData('kws');
         if (!kws || !kws.splice) {
             kws = [];
         }
-
-
         kws.splice(0, 0, kw);
         var kws2 = []
         var kw_map = {}
@@ -194,45 +191,32 @@
 
         saveData('kws', kws);
     }
+
     model.search = function(kw) {
         kw = kw || '';
         model.saveKw(kw);
-        var hosts = model.getHosts();
-
-        //filter
-        var kws = kw.split(/\s+/);
-        for (var i = 0; i < kws.length; i++) {
-            kw = kws[i]
-
-            if (kw) {
-                hosts = hosts.filter(function(v) {
-                    //单独字段搜索模式
-                    if (kw.indexOf(':') != -1) {
-                        var arr = kw.split(':');
-                        if (v[arr[0]] && v[arr[0]].indexOf(arr[1]) != -1) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    if (v.domain && v.domain.indexOf(kw) != -1) {
-                        return true;
-                    }
-                    if (v.ip && v.ip.indexOf(kw) != -1) {
-                        return true;
-                    }
-                    if (v.tags && v.tags.length && v.tags.indexOf(kw) != -1) {
-                        return true;
-                    }
-                    return false;
-                })
-
+        var hosts = model.getHosts().filter(function(host) {
+            if (!kw) return true;
+            var regStr = kw.toLowerCase().replace(/[\s]+/g, "(.*?)"),
+                searchReg = new RegExp(regStr, 'ig'),
+                hostArr = [host.ip, host.domain, JSON.stringify(host.tags)],
+                isFilter = false;
+            for (var i = 0; i < 6; i++) {
+                var tmp = [0, 1, 2],
+                    j = i % 2,
+                    x = (i + j) % 3;
+                tmp.splice(x, 1);
+                var y = tmp[j],
+                    z = 3 - x - y;
+                var hostStr = hostArr[x] + hostArr[y] + hostArr[z];
+                if (searchReg.test(hostStr)) {
+                    isFilter = true;
+                }
             }
-        }
+            return isFilter;
+        })
         return hosts;
     }
-
 
     /**
      * 获取标签的统计
@@ -388,7 +372,7 @@
 
                 var data = 'function FindProxyForURL(url,host){ \n if(shExpMatch(url,"http:*") || shExpMatch(url,"https:*")){if(isPlainHostName(host)){return "DIRECT";' +
                     script + '}else{return "' + default_mode + '";}}else{return "SYSTEM";}}';
-                console.log(data)
+                // console.log(data)
                 chrome.proxy.settings.set({
                     value: {
                         mode: 'pac_script',
@@ -432,11 +416,11 @@
         saveData('hosts', hosts);
         model.reload();
     }
-    model.disableHosts = function (ids) {
+    model.disableHosts = function (hostIdArr) {
         var hosts = loadData('hosts');
-        for (var i = 0; i < ids.length; i++) {
-            if (hosts[ids[i]]) {
-                hosts[ids[i]].status = 0;
+        for (var i = 0; i < hostIdArr.length; i++) {
+            if (hosts[hostIdArr[i]]) {
+                hosts[hostIdArr[i]].status = 0;
             }
         }
 

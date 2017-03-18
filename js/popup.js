@@ -6,295 +6,138 @@
  *
  */
 
-var model = window.Model;
-
 $(function() {
 
-    snailHostsLang.init('zh_CN');
+    // Data model
+    var model = window.Model;
+    // Lang support
+    var lang = new Lang();
+    lang.dynamic('zh_CN', '/js/langpack/zh_CN.json');
+    lang.init({});
+    // Load domain & tags
+    setTimeout(reload);
 
     // Status check
     $("#status").prop('checked', model.getStatus()).change(function() {
         model.setStatus(this.checked);
+        var statusDom = $(this).next();
+        if (statusDom.text() == lang.translate('On')) {
+            statusDom.text(lang.translate('Off'));
+        } else {
+            statusDom.text(lang.translate('On'));
+        }
+    });
+    // Change Tag
+    $('#tags-filter').on('click', 'a', function() {
+        var tag = $(this).data('tag') || '';
+        reload(tag);
+    });
+    $('#tags-filter').on('dblclick', 'a', function() {
+        var tag = $(this).data('tag') || '';
+        reload(tag);
+    });
+    // Search
+    $('#search-input').on('keyup', function() {
+        var kw = $(this).val();
+        clearTimeout($(this).data('t'));
+        $(this).data('t', setTimeout(function() {
+            reload();
+        }, 100));
     });
 
-    var last_search = model.getkws();
-    var kws = []
-    $(model.getkws()).each(function(i, v) {
-        kws.push({
-            'kw': v
-        });
+    $('#tbody-hosts').on('click', 'tr', function(e) {
+        var host = model.getHostById($(this).data('id')),
+            enableHost = host.status != 1 ? true : false;
+        if (enableHost == true) {
+            var enablesHosts = model.getEnabledHosts();
+            var anotherIds = [];
+            for (var i = 0, len = enablesHosts.length; i < len; i++) {
+                if (enablesHosts[i].domain === host.domain) {
+                    anotherIds.push(enablesHosts[i].id);
+                }
+            };
+            changeHostStatus(anotherIds, 0);
+        }
+        changeHostStatus([host.id], enableHost ? 1 : 0);
+        return false;
     });
 
-    setTimeout(search);
+    function reload(kw = null) {
+        if (kw === null) {
+            kw = $('#search-input').val();
+        } else {
+            $('#search-input').val(kw);
+        }
+        kw = kw || '';
+        loadTags(kw);
+        loadDomainList(kw);
+    }
 
-    function render_label_filter() {
+    function loadTags(kw = '') {
         var tags = model.countTags();
-        var labels = $('#label-filter')
-        var div_labels = $('#div_labels');
         var total = 0;
-        var labels_html = '',
-            label_checks = '';
-        div_labels.html('');
+        var tagsHml = '',
+            actionAll = true;
         for (var i = 0; i < tags.length; i++) {
             var tag = tags[i];
             if( ! tag.count ) continue;
             total += tag.count;
             if( ! tag.name ) continue;
-            labels_html += '<a href="#" data-tag="' + tag.name + '">' + tag.name + '(' + tag.count + ')</a>';
-            label_checks += '<label class="checkbox"><input type="checkbox" name="labels[]" value="' + tag.name + '">' + tag.name + '</label>';
-        }
-        labels.html('<a href="#" data-tag="" class="action">All(' + total + ')</a>' + labels_html);
-        div_labels.html(label_checks);
-    }
-
-    // export to json
-    $('#export').on('click', function() {
-        var hosts = model.getHosts();
-        var str = ''
-        for (var i in hosts) {
-            var h = hosts[i]
-            str += h.ip + " " + h.domain + " " + h.tags.toString() + " " + h.note + "\n";
-        }
-        downloadFile('host-switch-plus.json', str);
-    });
-
-    function downloadFile(fileName, content) {
-        var aLink = document.createElement('a');
-        var blob = new Blob([content]);
-        var evt = document.createEvent("HTMLEvents");
-        evt.initEvent("click", false, false);
-        aLink.download = fileName;
-        aLink.href = URL.createObjectURL(blob);
-        // aLink.dispatchEvent(evt);
-        aLink.click();
-    }
-
-    var labels = $('#label-filter');
-
-    labels.on('click', 'a', function() {
-        var tag = $(this).data('tag'),
-            s = '';
-        if( $(this).hasClass('action') ){
-            if( labels.hasClass('noBulk') ) return false;
-            // if( tag ){
-            var ids = [],
-                all_action = true;
-            var trs = $('#tbody-hosts').children();
-
-                $('#tbody-hosts').find('.host-status').each(function(){
-                    if( ! Number($(this).data('status')) ){
-                        all_action = false;
-                        return false;
-                    }
-                });
-
-            if (!all_action) {
-                var this_ds = {};
-
-                var enables = model.getEnabledHosts(),
-                    enabled_domains = {},
-                    dis_ids = [];
-                for (var i = 0, len = enables.length; i < len; i++) {
-                    var enable = enables[i];
-                    enabled_domains[enable.domain] = enable.id;
-                };
-
-                trs.each(function() {
-                    var domain = $(this).data('domain');
-                    var domain_enabled = enabled_domains[domain];
-
-                    if (domain_enabled && !$('#host-' + domain_enabled).length)
-                        dis_ids.push(domain_enabled);
-
-                    if (!this_ds[domain] && !(domain_enabled && $('#host-' + domain_enabled).length)) {
-                        ids[ids.length] = $(this).data('id');
-                    }
-
-                    this_ds[domain] = $(this).data('id');
-                });
-
-
-                if (dis_ids.length) {
-                    model.disableHosts(dis_ids);
-                }
-                model.enableHosts(ids);
-            } else {
-                trs.each(function() {
-                    ids[ids.length] = $(this).data('id');
-                });
-                model.disableHosts(ids);
+            var taga = $("<a/>")
+                .append(tag.name + '(' + tag.count + ')')
+                .attr('href', '#')
+                .attr('data-tag', tag.name)
+            if (kw == tag.name) {
+                taga.addClass('action');
+                actionAll = false;
             }
-            render_status(ids, !all_action, true);
-            // }
+            tagsHml += taga.prop('outerHTML');
+        }
+        var tagAll = $("<a/>")
+            .append('All(' + tag.count + ')')
+            .attr('href', '#')
+            .attr('data-tag', tag.name);
+        if (actionAll == true) {
+            tagAll.addClass('action');
+        }
+        $('#tags-filter').html(tagAll.prop('outerHTML') + tagsHml);
+    }
+
+    function loadDomainList(kw = '') {
+        var result = model.search(kw);
+        var tbody = $('#tbody-hosts'),
+            html = '';
+        if (result.length == 0) {
+            html = '<tr><td colspan="6">'+lang.translate('No Results')+'</td></tr>';
         } else {
-            if (tag) {
-                var kw = $('#input_search').val();
-                var kws = kw.split(/\s+/);
-                for (var i = 0; i < kws.length; i++) {
-                    if (kws[i].indexOf(':')) {
-                        var t = kws[i].split(':');
-                        if (t[0] == 'tags') {
-                            kws[i] = '';
-                        }
-                    }
-                }
-                kws.push('tags:' + tag);
-                s = kws.join(' ');
-            }
-            $(this).addClass('action').siblings('a').removeClass('action');
-            $('#input_search').val(s);
-            search();
+            $(result).each(function(i, v) {
+                v.tags = v.tags ? (v.tags.join(', ')) : '';
+                v.status_class = v.status ? 'status-enabled' : 'status-disabled';
+            });
+            html = $('#host-item').extendObj(result);
         }
-        return false;
-    });
+        tbody.html(html);
+    }
 
-    setTimeout(render_label_filter);
-
-    // 状态刷新
-    function render_status(ids, status) {
-        var id_map = {}
+    function changeHostStatus(ids, status) {
+        var id_map = {},
+            enableHost = status != 0 ? true : false;
         $(ids).each(function(i, v) {
             id_map[v] = 1;
             var span = $('#tbody-hosts tr#host-' + v).find('.host-status');
-            if (status) {
+            if (enableHost == true) {
                 span.removeClass('status-disabled').addClass('status-enabled');
             } else {
                 span.removeClass('status-enabled').addClass('status-disabled');
             }
             span.data('status', status ? 1 : 0);
-        })
-    }
-    var labels = $('#menu')
-
-    labels.on('click', 'a', function() {
-        var kw = $(this).data('kw');
-        $('#input_search').val(kw).change();
-        if (!kw) {
-            model.clearkws();
-        }
-    });
-
-    $('#tbody-hosts').on('click', 'tr', function(e) {
-        var $item = $(this);
-        if ($('#tbody-hosts').is('.needBulk')) {
-            if (e.target.tagName.toLowerCase() !== 'input') {
-                if (e.target.tagName.toLowerCase() === 'a') {
-                    $this = $(e.target);
-                    if ($this.is('.delete')) {
-                        if (confirm('Delete Confirm')) {
-                            model.removeHost($this.data('id'));
-                            $item.remove();
-                        }
-                        var info = model.getHostById($item.data('id'));
-                        var $addForm = $('#addForm');
-                        addForm.reset();
-
-                        $('#list').removeClass('current');
-                        $addForm.addClass('current').find(':input').each(function() {
-                            var $input = $(this);
-                            var name = $input.attr('name') || $input.attr('id');
-                            if( name ){
-                                if( name === 'labels[]' ){
-                                    if( info.tag && info.tag.indexOf($input.val()) > -1 ){
-                                        this.checked = true;
-                                    }
-                                } else $input.val(info[name]);
-                            }
-                        });
-                    }
-                    return false;
-                } else if ($(e.target).children('input').length) {
-                    var c = $('input', this);
-                    setTimeout(function() {
-                        c.prop('checked', !c.prop('checked')).change();
-                    });
-                }
-            }
-        } else if (e.target.tagName.toLowerCase() !== 'a') {
-            $('.host-status', this).trigger('click');
-        }
-    });
-
-    $('#input_search').on('keyup', function() {
-        clearTimeout($(this).data('t'));
-        $(this).data('t', setTimeout(search, 100));
-    });
-    $('#searchForm').on('submit', function() {
-        search();
-        return false;
-    });
-
-    var mode = model.getDefaultMode();
-    $('#default option').eq(3).val(mode);
-    if (mode != 'DIRECT' && mode != 'SYSTEM') {
-        $('#UserDefined').val(mode)
-    }
-    $('#input_mode').val(mode);
-    $('#default').val(mode).change(function() {
-        $('#input_mode').val(mode);
-        model.setStatus($("#status")[0].checked, $(this).val());
-    });
-    $('#input_ignore').val(model.getDefaultIgnoreDomain().join("\n"))
-
-    function set_status(id, status) {
-        var ids = [id];
-        if (status == 1) {
-            render_status(ids, 1);
+        });
+        if (enableHost == true) {
             model.enableHosts(ids);
         } else {
-            render_status(ids, 0);
             model.disableHosts(ids);
         }
+        return;
     }
-
-    $('#tbody-hosts').on('click', 'a.host-status', function() {
-        var status_obj = $(this);
-        var id = status_obj.data('id');
-        var host = model.getHostById(id);
-        var domain = host.domain,
-            status = host.status;
-        var ids = [id];
-
-        if(status == '1'){ // 禁用
-            render_status(ids, 0);
-            model.disableHosts(ids);
-        } else { // 启用
-            $('#tbody-hosts').find('.status-enabled').each(function() { // 禁用相同 domain 的项
-                if ($(this).data('domain') === domain) {
-                    var another_id = $(this).data('id');
-                    render_status([another_id], 0);
-                    model.disableHosts([another_id]);
-                }
-            });
-
-            var enables = model.getEnabledHosts();
-            if (enables.length) {
-                for (var i = 0, len = enables.length; i < len; i++) {
-                    if (enables[i].domain === domain) {
-                        model.disableHosts([enables[i].id]);
-                    }
-                };
-            }
-
-            render_status(ids, 1);
-            model.enableHosts(ids);
-        }
-        return false;
-    });
 })
 
-function render_search_result(result, isBulk) {
-    var tbody = $('#tbody-hosts'),
-        html = '';
-    isBulk = typeof isBulk === 'undefined' ? tbody.is('.needBulk') : isBulk;
-    if (result.length == 0) {
-        html = '<tr><td colspan="6">No Results</td></tr>';
-    } else {
-        $(result).each(function(i, v) {
-            v.tags = v.tags ? (v.tags.join(', ')) : '';
-            v.status_class = v.status ? 'status-enabled' : 'status-disabled';
-        });
-        html = $('#host-item').extendObj(result);
-        tbody.html(html);
-    }
-}

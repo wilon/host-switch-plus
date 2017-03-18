@@ -2,8 +2,10 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/style.css">
-    <script src="/libs/jquery-3.1.1.min.js"></script>
-    <script src="/js/lang.js"></script>
+    <script src="/js/libs/jquery-3.1.1.min.js"></script>
+    <script src="/js/libs/jquery-lang.js"></script>
+    <script src="/js/libs/js.cookie.js"></script>
+    <script src="/js/libs/tpl.js"></script>
     <script src="/js/model.js"></script>
     <script src="/js/popup.js"></script>
 </head>
@@ -11,24 +13,27 @@
     <div class="inner">
         <header>
             <h1>Snail Hosts</h1>
-            <input type="text" id="search-input" class="form-control input-sm" placeholder="Search Domain, IP, Tag ..." value="">
+            <input type="text" id="search-input" class="form-control input-sm" placeholder="Search Domain, IP, Tag ..." lang="en">
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <small>
-                <a href="/pages/option.html#hosts" target="_blank" id="manage-link"><span lang="manage_link"></span></a>
+                <a href="/pages/option.html#hosts" target="_blank" id="manage-link" lang="en">Manager</a>
                 <i class="I">|</i>
-            <label class="checkbox"><input id="status" type="checkbox" value="1" checked><span lang="status_on"></span></label>
+            <label class="checkbox">
+                <input id="status" type="checkbox" value="1" checked >
+                <span lang="en">On</span>
+            </label>
             </small>
         </header>
 
-        <div class="filter"> <span id="label-filter" lang="all_tag" langTitle="all_tag_title"></span></div>
+        <div class="filter"> <span lang="en" title="Double click to enable all.">Tags: </span><span id="tags-filter"></span></div>
 
         <table id="main-table" class="table table-hover table-condensed">
             <thead>
                 <tr>
                     <th width="20">&nbsp;</th>
                     <th width="110">IP</th>
-                    <th>Domain</th>
-                    <th>Tag</th>
+                    <th lang="en">Domain</th>
+                    <th lang="en">Tag</th>
                 </tr>
             </thead>
             <tbody id="tbody-hosts"></tbody>

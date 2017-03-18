@@ -1,0 +1,22 @@
+{
+	"token": {
+		"Search Domain, IP, Tag ...": "搜索域名、IP、标签...",
+		"Manager": "管理",
+		"On": "已开",
+		"Off": "已关",
+		"Tags:": "标签：",
+		"Double click to enable all.": "双击全部开启/关闭",
+		"Domain": "域名",
+		"Tag": "标签",
+		"No Results": "没有搜索结果",
+		"": "",
+	  	"http://www.ioling.org/images/flags/uk.gif": "http://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_Thailand.svg/1280px-Flag_of_Thailand.svg.png",
+		"http://www.google.com/": "http://www.yahoo.com/",
+		"lorem" : "ตรงกันข้ามกับความเชื่อที่นิยมกัน Lorem Ipsum ไม่ได้เป็นเพียงแค่ชุดตัวอักษรที่สุ่มขึ้นมามั่วๆ แต่หากมีที่มาจากวรรณกรรมละตินคลาสสิกชิ้นหนึ่งในยุค  ..."
+	},
+	"regex": [
+		["Budget", "งบประมาณ"],
+		["^Something at start of text", ""],
+		["This will be case insensitive", "i", ""]
+	]
+}
