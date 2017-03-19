@@ -1,0 +1,25 @@
+{
+  "name": "snail-hosts",
+  "version": "0.1.1",
+  "description": "Browser hosts plugin.",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-minify-css": "^1.2.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wilon/snail-hosts.git"
+  },
+  "author": "Weilong Wang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wilon/snail-hosts/issues"
+  },
+  "homepage": "https://github.com/wilon/snail-hosts#readme"
+}

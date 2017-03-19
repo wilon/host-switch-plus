@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Snail Hosts",
   "description": "A fast hosts switch tool for developer.",
-  "minimum_chrome_version": "23",
+  "minimum_chrome_version": "40",
   "version": "0.1.1",
   "icons": {
     "16"  : "icons/snail_26.png",
@@ -10,15 +10,15 @@
   },
   "background": {
     "scripts": [
-      "js/background.js"
+      "static/background.min.js"
     ]
   },
   "default_locale": "en",
-  "options_page": "pages/option.html",
+  "options_page": "static/option.html",
   "content_scripts": [{
     "exclude_globs": [  ],
     "include_globs": [ "*" ],
-    "js": [ "/js/script.js" ],
+    "js": [ "static/script.min.js" ],
     "matches": [ "http://*/*", "https://*/*" ],
     "run_at": "document_start",
     "all_frames": false
@@ -26,7 +26,7 @@
   "browser_action": {
     "default_icon": "icons/snail_26.png",
     "default_title": "Snail Hosts",
-    "default_popup": "pages/popup.html"
+    "default_popup": "static/popup.html"
   },
   "permissions": [
     "proxy",
