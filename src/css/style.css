@@ -8,7 +8,6 @@ body {
 
 .inner {
     min-width: 500px;
-    max-width: 960px;
 }
 
 .popup .inner {
@@ -38,7 +37,7 @@ h1 small {
     font-size: 12px;
 }
 
-#search-input {
+.search-input1 {
     margin-left: 120px;
     max-width: 155px
 }
@@ -188,6 +187,13 @@ table {
     font-size: 12px;
 }
 
+#main-table2 {
+    width: 60%;
+    float: left;
+    margin-right: 20px;
+    min-height: 160px;
+}
+
 td, th {
     padding: 8px 5px 6px;
 }
@@ -203,6 +209,11 @@ td {
 
 tr:hover td {
     background: #E8F7ED;
+}
+
+
+.editting {
+    background: #E8F7d0;
 }
 
 tr .actions {

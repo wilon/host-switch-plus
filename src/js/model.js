@@ -12,6 +12,11 @@
  *
  */
 
+// Lang support
+var lang = new Lang();
+lang.dynamic('zh_CN', '/src/js/langpack/zh_CN.json');
+lang.init({});
+
 (function(window) {
     var model = {};
 
@@ -146,9 +151,7 @@
 
             saveData('hosts', hosts);
 
-            //修改之后 更新
             loadsIp()
-                //自动启动
             if (enable) model.enableHosts([id]);
             model.reload();
         }
@@ -169,9 +172,6 @@
     }
 
     model.saveKw = function(kw) {
-        if (!kw) {
-            return;
-        }
         var kws = loadData('kws');
         if (!kws || !kws.splice) {
             kws = [];
@@ -188,14 +188,14 @@
         }
         kws = kws2.slice(0, 10);
 
-
         saveData('kws', kws);
     }
 
     model.search = function(kw) {
-        kw = kw || '';
+        if (typeof kw !== 'string') kw = '';
         model.saveKw(kw);
         var hosts = model.getHosts().filter(function(host) {
+            if (host.ip == '' || host.domain == '') return false;
             if (!kw) return true;
             var regStr = kw.toLowerCase().replace(/[\s]+/g, "(.*?)"),
                 searchReg = new RegExp(regStr, 'ig'),
@@ -214,7 +214,10 @@
                 }
             }
             return isFilter;
-        })
+        });
+        hosts.sort(function (v1, v2) {
+            return v1.id > v2.id ? -1 : 1;
+        });
         return hosts;
     }
 
@@ -257,14 +260,6 @@
 
     model.getStatus = function() {
         return loadData('status') ? loadData('status') : 0;
-    }
-
-    model.getDefaultMode = function() {
-        return loadData('default_mode') ? loadData('default_mode') : 'DIRECT';
-    }
-
-    model.getDefaultIgnoreDomain = function() {
-        return loadData('ignore_domain') ? loadData('ignore_domain') : [];
     }
 
     model.getEnabledHosts = function() {
@@ -321,12 +316,12 @@
     }
 
     //开关,启用暂停
-    model.setStatus = function(checked, default_mode, ignore_domain) {
-            default_mode = default_mode || this.getDefaultMode();
-            ignore_domain = ignore_domain || this.getDefaultIgnoreDomain();
+    model.setStatus = function(checked) {
+            var proxy = this.proxy();
+            default_mode = proxy.value;
+            ignore_domain = proxy.ignore;
+            console.log(checked, default_mode, ignore_domain);
             saveData('status', checked);
-            saveData('default_mode', default_mode);
-            saveData('ignore_domain', ignore_domain);
             this.checked = checked;
 
             var script = '';
@@ -372,7 +367,7 @@
 
                 var data = 'function FindProxyForURL(url,host){ \n if(shExpMatch(url,"http:*") || shExpMatch(url,"https:*")){if(isPlainHostName(host)){return "DIRECT";' +
                     script + '}else{return "' + default_mode + '";}}else{return "SYSTEM";}}';
-                // console.log(data)
+                console.log(data)
                 chrome.proxy.settings.set({
                     value: {
                         mode: 'pac_script',
@@ -388,9 +383,7 @@
             } else {
                 chrome.proxy.settings.set({
                     value: {
-                        //mode: 'system'
-                        // mode: 'direct'
-                        mode: default_mode.toLowerCase()
+                        mode: 'system'
                     },
                     scope: 'regular'
                 }, $.noop);
@@ -440,6 +433,87 @@
         }
 
         model.reload();
+    }
+
+    /**
+     * porxy
+     */
+    model.getProxy = function (id) {
+        var proxyData = loadData('proxy') || [];
+        if (proxyData.length == 0) {
+            proxyData[0] = {
+                name: 'Direct',
+                value: 'DIRECT',
+                ignore: [],
+                status: 1
+            }
+            proxyData[1] = {
+                name: 'System',
+                value: 'SYSTEM',
+                ignore: [],
+                status: 0
+            }
+            proxyData[2] = {
+                name: 'Lantern',
+                value: 'PROXY 127.0.0.1:50302; DIRECT',
+                ignore: [],
+                status: 0
+            }
+            saveData('proxy', proxyData);
+        }
+        return typeof id == 'undefined' ? proxyData : proxyData[id];
+    }
+
+    model.proxy = function () {
+        var proxyData = loadData('proxy') || [],
+            res = proxyData[0]
+        proxyData.map(function(elem, index) {
+            if (elem.status == 1) {
+                res = elem;
+                return;
+            }
+        })
+        return res;
+    }
+
+    model.changeProxy = function (id) {
+        var proxyData = loadData('proxy') || [];
+        try {
+            proxyData.map(function(elem, index) {
+                if (id == index) {
+                    elem.status = 1;
+                } else {
+                    elem.status = 0;
+                }
+                return elem;
+            });
+            saveData('proxy', proxyData);
+        } catch (e) {
+        }
+    }
+
+    model.addProxy = function (proxy) {
+        if (proxy.id > 0) {
+            return model.updateProxy(proxy);
+        }
+        var proxyData = loadData('proxy');
+        var id = proxyData.length;
+        proxy.status = 0;
+        proxyData[id] = proxy;
+        saveData('proxy', proxyData);
+        return id;
+    }
+
+    model.updateProxy = function (proxy) {
+
+        if (typeof proxy.id != 'number') return;
+        if (proxy.id < 1) return proxy.id;
+
+        var proxyData = loadData('proxy') || [];
+        proxyData[proxy.id] = proxy;
+        saveData('proxy', proxyData);
+        model.reload();
+        return proxy.id;
     }
 
     function refreshDataForBk(do_off){

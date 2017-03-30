@@ -1,16 +1,18 @@
 {
   "name": "snail-hosts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Browser hosts plugin.",
   "main": "gulpfile.js",
   "dependencies": {
     "del": "^2.2.2",
     "gulp": "^3.9.1",
-    "gulp-minify-css": "^1.2.4"
+    "gulp-concat": "^2.6.1",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-uglify": "^2.1.2"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp"
   },
   "repository": {
     "type": "git",

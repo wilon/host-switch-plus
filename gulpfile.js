@@ -2,29 +2,39 @@
 var gulp = require('gulp');
 
 // 引入组件
-var minifyCSS = require('gulp-minify-css');
-var concat = require('gulp-concat');    // 合并
-var rev = require('gulp-rev');    // 对文件名加MD5后缀
-var revCollector = require('gulp-rev-collector');    // 路径替换
+var minifyCSS = require('gulp-minify-css'),
+    concat = require('gulp-concat'),
+    uglify = require('gulp-uglify')
 
 // 合并，压缩 js 文件
 gulp.task('popup-js', function() {
     return gulp.src([
             './src/js/libs/*.js',
             './src/js/model.js',
+            './src/js/table.js',
             './src/js/popup.js'
             ])
         .pipe(concat('popup.min.js'))
+        .pipe(uglify({
+            mangle: false
+        }).on('error', function (e) {
+            console.log(e)
+        }))
         .pipe(gulp.dest('./static/'))
 });
 gulp.task('option-js', function() {
     return gulp.src([
             './src/js/libs/*.js',
-            './src/js/popup.js',
             './src/js/model.js',
+            './src/js/table.js',
             './src/js/option.js'
             ])
         .pipe(concat('option.min.js'))
+        // .pipe(uglify({
+        //     mangle: false
+        // }).on('error', function (e) {
+        //     console.log(e)
+        // }))
         .pipe(gulp.dest('./static/'))
 });
 gulp.task('script-js', function() {
@@ -32,6 +42,9 @@ gulp.task('script-js', function() {
             './src/js/script.js'
             ])
         .pipe(concat('script.min.js'))
+        .pipe(uglify({
+            mangle: false
+        }))
         .pipe(gulp.dest('./static/'))
 });
 gulp.task('background-js', function() {
@@ -39,6 +52,9 @@ gulp.task('background-js', function() {
             './src/js/background.js'
             ])
         .pipe(concat('background.min.js'))    // 合并
+        .pipe(uglify({
+            mangle: false
+        }))
         .pipe(gulp.dest('./static/'))    // 保存
 });
 
@@ -59,8 +75,8 @@ gulp.task('default', [
     'css'
 ], function () {
     gulp.watch('./src/js/*.js', [
-        'option-js',
         'popup-js',
+        'option-js',
         'script-js',
         'background-js'
         ]);
