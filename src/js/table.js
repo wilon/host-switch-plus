@@ -31,8 +31,8 @@ $(function() {
 
     window.Table.search = function (kw) {
         kw = kw || '';
-        _loadTags(kw);
         _loadDomainList(kw);
+        _loadTags(kw);
     }
 
     function _loadTags(kw) {

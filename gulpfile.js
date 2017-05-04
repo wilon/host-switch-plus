@@ -4,7 +4,9 @@ var gulp = require('gulp');
 // 引入组件
 var minifyCSS = require('gulp-minify-css'),
     concat = require('gulp-concat'),
-    uglify = require('gulp-uglify')
+    uglify = require('gulp-uglify'),
+    babel = require('gulp-babel')
+    ;
 
 // 合并，压缩 js 文件
 gulp.task('popup-js', function() {
@@ -15,6 +17,9 @@ gulp.task('popup-js', function() {
             './src/js/popup.js'
             ])
         .pipe(concat('popup.min.js'))
+        .pipe(babel({
+            presets: ['es2015']
+        }))
         .pipe(uglify({
             mangle: false
         }).on('error', function (e) {
