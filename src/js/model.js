@@ -317,10 +317,9 @@ lang.init({});
 
     //开关,启用暂停
     model.setStatus = function(checked) {
-            var proxy = this.proxy();
-            default_mode = proxy.value;
-            ignore_domain = proxy.ignore;
-            console.log(checked, default_mode, ignore_domain);
+            var proxy = this.proxy(),
+                default_mode = proxy.value,
+                ignore_domain = proxy.ignore;
             saveData('status', checked);
             this.checked = checked;
 
