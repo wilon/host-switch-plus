@@ -21,8 +21,28 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     var location = localStorage[request.ip] || getIpLocation(request.ip);
     localStorage[request.ip] = location;
-    sendResponse({'location': location});
+    sendResponse({
+        'location': location,
+        'stock': getStockInfo(request.stock)
+    });
 });
+
+function getStockInfo(stockList) {
+    var stockInfo = {};
+    http_ajax('http://hq.sinajs.cn/list=' + stockList.join(','), 'GET', false, function(data) {
+        if (true === data.success) {
+            try {
+                stockInfo.success = true;
+                stockInfo.content = data.content;
+            } catch(exception) {
+                stockInfo.success = false;
+            }
+        } else {
+            stockInfo = {};
+        }
+    });
+    return stockInfo;
+}
 
 function getIpLocation(ip) {
     var location = '';

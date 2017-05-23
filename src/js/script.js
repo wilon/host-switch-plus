@@ -31,14 +31,58 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     var divDom = document.createElement("div");
     divDom.id = "snail-hosts-ipview";
     divDom.style.cssText = style;
-    divDom.innerHTML = request.ip
-    // Get location
-    chrome.extension.sendMessage({
-        'ip': request.ip
-    }, function(response) {
-        divDom.innerHTML += '<br>' + response.location;
-    });
-    document.body.appendChild(divDom);
+    divDom.innerHTML = request.ip;
+    var ipDom = divDom.innerHTML;
+    var interval = function () {}
+    var updateDom = function() {
+        clearInterval(interval);
+        var stockConfig = [
+                'sh000001',
+                "sh600720",
+                "sh601003",
+                "sh600368",
+                "sh600008",
+                "sz000903",
+                "sz002024",
+                "sz002624",
+                "sh600939",
+                "sh601633"
+            ];
+        var stockInfo = [];
+        chrome.extension.sendMessage({
+            'ip': request.ip,
+            'stock': stockConfig
+        }, function(response) {
+            eval(response.stock.content)
+            stockConfig.map(function(elem) {
+                var hqStr = 'hq_str_' + elem;
+                eval('var info = ' + hqStr + '.split(",")');
+                stockInfo.push({
+                    name: info[0],
+                    code: elem,
+                    openPrice: info[2],
+                    currPrice: info[3],
+                })
+            })
+            var changeDom = function() {
+                var dd = parseInt(Math.random() * stockInfo.length);
+                var stock = stockInfo[dd];
+                var bai = (stock.currPrice - stock.openPrice) / stock.openPrice * 100;
+                var updown = bai > 0 ? '▲' : '▼';
+                divDom.innerHTML = ipDom + ' ' + response.location + '<br>'
+                    +  stock.name + ' '
+                    +  parseFloat(stock.currPrice).toFixed(2) + ' '
+                    +  updown + ' '
+                    +  parseFloat(bai).toFixed(2) + '%';
+                document.body.appendChild(divDom);
+            };
+            changeDom();
+            interval = setInterval(changeDom, 5000);
+        });
+
+    }
+    updateDom();
+    setInterval(updateDom, 15000);
     // On mouseover
     divDom.onmouseover = function() {
         var ipView = document.getElementById('snail-hosts-ipview');
@@ -52,5 +96,4 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     };
     sendResponse({});
 });
-
 

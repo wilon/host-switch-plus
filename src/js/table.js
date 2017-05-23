@@ -1,6 +1,6 @@
 /**
  *
- * Click chrome button.
+ * Hosts list table action.
  *
  * @author by wilon <github.com/wilon>
  *
