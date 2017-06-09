@@ -24,14 +24,14 @@ $(function() {
                 id: Number($('#proxy-id').val()),
                 name: $('#proxy-name').val(),
                 value: $('#proxy-value').val(),
-                ignore: $('#proxy-ignore').val().split('\n'),
+                use: $('#proxy-use').val().split('\n'),
             }
         },
         set: function (id, proxy) {
             $('#proxy-id').val(id);
             $('#proxy-name').val(proxy.name);
             $('#proxy-value').val(proxy.value);
-            $('#proxy-ignore').val(proxy.ignore.join('\n'));
+            $('#proxy-use').val(proxy.use.join('\n'));
         },
         reload: function () {
             var proxyData = model.getProxy()
@@ -53,7 +53,7 @@ $(function() {
             this.set('', {
                 name: '',
                 value: '',
-                ignore: [],
+                use: [],
             });
         },
         submit: function () {
@@ -83,6 +83,7 @@ $(function() {
     });
     $('#settings').on('submit', function() {
         settingsForm.submit();
+        return false;
     });
 
 
@@ -188,9 +189,9 @@ $(function() {
 
     $('#defaultMode').on('submit', function() {
         var mode = $('#input_mode').val(),
-            ignore_val = $('#input_ignore').val(),
-            ignore_list = ignore_val.split("\n");
-        model.setStatus($("#status")[0].checked, mode, ignore_list);
+            use_val = $('#input_use').val(),
+            use_list = use_val.split("\n");
+        model.setStatus($("#status")[0].checked, mode, use_list);
         var res = $('#default option').each(function() {
             if ($(this).val() == mode) {
                 return false;

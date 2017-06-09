@@ -6,7 +6,13 @@
     <meta content="utf-8" http-equiv="encoding">
     <title>Snail Hosts Settings</title>
     <link rel="stylesheet" href="/static/snail-hosts.min.css">
-    <script src="/static/option.min.js"></script>
+    <script src="/src/js/libs/jquery-2.1.4.min.js"></script>
+    <script src="/src/js/libs/jquery-lang.js"></script>
+    <script src="/src/js/libs/js.cookie.js"></script>
+    <script src="/src/js/libs/tpl.js"></script>
+    <script src="/src/js/model.js"></script>
+    <script src="/src/js/table.js"></script>
+    <script src="/src/js/option.js"></script>
 </head>
 <body>
     <div class="inner">
@@ -100,7 +106,7 @@
                     <input type="hidden" id="proxy-id">
                     <input type="text" id="proxy-name" class="form-control input-sm" placeholder="Proxy Name" value=""><br>
                     <input type="text" id="proxy-value" class="form-control input-sm" placeholder="Proxy Model" value=""><br>
-                    <textarea id="proxy-ignore" placeholder="Proxy Ignore Domain"></textarea>
+                    <textarea id="proxy-use" placeholder="Use Proxy Domain"></textarea>
                 </label>
             </div>
             <div class="field formWarning" style="display: none;">

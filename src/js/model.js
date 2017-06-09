@@ -319,7 +319,7 @@ lang.init({});
     model.setStatus = function(checked) {
             var proxy = this.proxy(),
                 default_mode = proxy.value,
-                ignore_domain = proxy.ignore;
+                use_domain = proxy.use;
             saveData('status', checked);
             this.checked = checked;
 
@@ -328,17 +328,20 @@ lang.init({});
             if (this.checked) {
 
                 var results = model.getEnabledHosts();
-                ignore_domain.map(function(elem) {
-                    if (elem == '') return;
+                use_domain.map(function(domain) {
+                    if (domain == '') return;
                     results.push({
-                        domain: elem,
-                        ip: ''
+                        domain: domain,
+                        ip: '-1',
+                        proxy: default_mode
                     })
                     return;
                 })
+                // 每一行IP设置规则
                 results.map(function(elem) {
                     if (elem.domain == '') return;
                     var port = 80;
+                    // 设置条件
                     if (elem.domain.indexOf('*') != -1) {
                         script += '}else if(shExpMatch(host,"' + elem.domain + '")){';
                     } else if (elem.domain.indexOf(':') != -1) {
@@ -348,7 +351,7 @@ lang.init({});
                     } else {
                         script += '}else if(host == "' + elem.domain + '"){';
                     }
-
+                    // 设置端口
                     if (elem.ip.indexOf(':') > -1) {
                         var ip_port = elem.ip.split(':');
                         elem.ip = ip_port[ip_port.length - 2];
@@ -357,6 +360,8 @@ lang.init({});
 
                     if (elem.ip == false) {
                         script += 'return "DIRECT";';
+                    } else if (typeof(elem.proxy) != 'undefined') {
+                        script += 'return "' + elem.proxy + '";';
                     } else {
                         script += 'return "PROXY ' + elem.ip + ':' + port + '; DIRECT";';
                     }
@@ -365,8 +370,7 @@ lang.init({});
                 })
 
                 var data = 'function FindProxyForURL(url,host){ \n if(shExpMatch(url,"http:*") || shExpMatch(url,"https:*")){if(isPlainHostName(host)){return "DIRECT";' +
-                    script + '}else{return "' + default_mode + '";}}else{return "SYSTEM";}}';
-                console.log(data)
+                    script + '}else{return "DIRECT";}}else{return "SYSTEM";}}';
                 chrome.proxy.settings.set({
                     value: {
                         mode: 'pac_script',
@@ -376,9 +380,8 @@ lang.init({});
                     },
                     scope: 'regular'
                 }, function() {
-                    //console.log('set pac scripts result:',arguments);
                 });
-                // $('#msg').html('set :' + script);
+                console.log(results, data)
             } else {
                 chrome.proxy.settings.set({
                     value: {
@@ -443,19 +446,19 @@ lang.init({});
             proxyData[0] = {
                 name: 'Direct',
                 value: 'DIRECT',
-                ignore: [],
+                use: [],
                 status: 1
             }
             proxyData[1] = {
                 name: 'System',
                 value: 'SYSTEM',
-                ignore: [],
+                use: [],
                 status: 0
             }
             proxyData[2] = {
                 name: 'Lantern',
                 value: 'PROXY 127.0.0.1:50302; DIRECT',
-                ignore: [],
+                use: [],
                 status: 0
             }
             saveData('proxy', proxyData);
@@ -489,6 +492,7 @@ lang.init({});
             saveData('proxy', proxyData);
         } catch (e) {
         }
+        model.reload();
     }
 
     model.addProxy = function (proxy) {
@@ -511,7 +515,7 @@ lang.init({});
         var proxyData = loadData('proxy') || [];
         proxyData[proxy.id] = proxy;
         saveData('proxy', proxyData);
-        model.reload();
+
         return proxy.id;
     }
 

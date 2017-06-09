@@ -27,21 +27,6 @@ gulp.task('popup-js', function() {
         }))
         .pipe(gulp.dest('./static/'))
 });
-gulp.task('option-js', function() {
-    return gulp.src([
-            './src/js/libs/*.js',
-            './src/js/model.js',
-            './src/js/table.js',
-            './src/js/option.js'
-            ])
-        .pipe(concat('option.min.js'))
-        // .pipe(uglify({
-        //     mangle: false
-        // }).on('error', function (e) {
-        //     console.log(e)
-        // }))
-        .pipe(gulp.dest('./static/'))
-});
 gulp.task('script-js', function() {
     return gulp.src([
             './src/js/script.js'
@@ -73,7 +58,6 @@ gulp.task('css', function () {
 
 // 默认任务
 gulp.task('default', [
-    'option-js',
     'popup-js',
     'script-js',
     'background-js',
@@ -81,7 +65,6 @@ gulp.task('default', [
 ], function () {
     gulp.watch('./src/js/*.js', [
         'popup-js',
-        'option-js',
         'script-js',
         'background-js'
         ]);
