@@ -9,16 +9,14 @@
     "128" : "icons/snail_26.png"
   },
   "background": {
-    "scripts": [
-      "static/background.min.js"
-    ]
+    "page": "stock-list/background.html"
   },
   "default_locale": "en",
   "options_page": "static/option.html",
   "content_scripts": [{
     "exclude_globs": [  ],
     "include_globs": [ "*" ],
-    "js": [ "static/script.min.js" ],
+    "js": [ "src/js/script.js" ],
     "matches": [ "http://*/*", "https://*/*" ],
     "run_at": "document_start",
     "all_frames": false

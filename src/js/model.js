@@ -464,7 +464,7 @@ lang.init({});
     }
 
     model.proxy = function () {
-        var proxyData = loadData('proxy') || [],
+        var proxyData = this.getProxy() || [],
             res = proxyData[0]
         proxyData.map(function(elem, index) {
             if (elem.status == 1) {

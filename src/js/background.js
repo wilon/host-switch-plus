@@ -23,13 +23,22 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     localStorage[request.ip] = location;
     sendResponse({
         'location': location,
-        'stock': getStockInfo(request.stock)
+        'stock': getStockInfo()
     });
 });
 
-function getStockInfo(stockList) {
+function getStockInfo() {
     var stockInfo = {};
-    http_ajax('http://hq.sinajs.cn/list=' + stockList.join(','), 'GET', false, function(data) {
+    var stockList = [],
+        stockListStocks = JSON.parse(localStorage['stockListStocks']);
+    for (var i in stockListStocks) {
+        stockList.push(stockListStocks[i].stockCode);
+    }
+    var stockUpdateAt = parseInt(new Date().getTime() / 10000) * 10;
+    if (localStorage['stockUpdateAt'] == stockUpdateAt) {
+        return JSON.parse(localStorage['stock']);
+    }
+    http_ajax('https://hq.sinajs.cn/list=' + stockList.join(','), 'GET', false, function(data) {
         if (true === data.success) {
             try {
                 stockInfo.success = true;
@@ -41,6 +50,9 @@ function getStockInfo(stockList) {
             stockInfo = {};
         }
     });
+    stockInfo.config = stockList;
+    localStorage['stock'] = JSON.stringify(stockInfo);
+    localStorage['stockUpdateAt'] = stockUpdateAt;
     return stockInfo;
 }
 

@@ -42,26 +42,6 @@ gulp.task('option-js', function() {
         // }))
         .pipe(gulp.dest('./static/'))
 });
-gulp.task('script-js', function() {
-    return gulp.src([
-            './src/js/script.js'
-            ])
-        .pipe(concat('script.min.js'))
-        .pipe(uglify({
-            mangle: false
-        }))
-        .pipe(gulp.dest('./static/'))
-});
-gulp.task('background-js', function() {
-    return gulp.src([
-            './src/js/background.js'
-            ])
-        .pipe(concat('background.min.js'))    // 合并
-        .pipe(uglify({
-            mangle: false
-        }))
-        .pipe(gulp.dest('./static/'))    // 保存
-});
 
 // 合并，压缩 css 文件
 gulp.task('css', function () {
@@ -75,15 +55,11 @@ gulp.task('css', function () {
 gulp.task('default', [
     'option-js',
     'popup-js',
-    'script-js',
-    'background-js',
     'css'
 ], function () {
     gulp.watch('./src/js/*.js', [
         'popup-js',
         'option-js',
-        'script-js',
-        'background-js'
         ]);
     gulp.watch('./src/css/*.css', ['css']);
 });
