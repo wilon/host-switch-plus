@@ -5,7 +5,7 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
     <title>Snail Hosts Settings</title>
-    <link rel="stylesheet" href="/static/snail-hosts.min.css">
+    <link rel="stylesheet" href="/src/css/style.css">
     <script src="/src/js/libs/jquery-2.1.4.min.js"></script>
     <script src="/src/js/libs/jquery-lang.js"></script>
     <script src="/src/js/libs/js.cookie.js"></script>
@@ -17,9 +17,9 @@
 <body>
     <div class="inner">
         <h1>Snail Hosts
-            <small>
-            &nbsp;&nbsp;
-            <label class="checkbox"><input id="status" type="checkbox" value="1" checked><span>Enable</span></label></small>
+            <small> &nbsp;&nbsp; <label class="checkbox"> <input id="status" type="checkbox" value="1" checked><span>Enable</span> </label> </small>
+            <small> <a href="#" id="export" title="导出 Hosts 配置">Export</a> </small>
+            <small> <a href="snail-hosts-settings.html" target="_blank">Settings</a> </small>
         </h1>
 
     <nav id="add_tab" class="tabNavs">
@@ -50,7 +50,7 @@
                 <input type="hidden" name="id" id="item-id">
                 <div class="field">
                     <label for="ip" class="col-xs-2 control-label">* IP：</label>
-                    <input type="text" autocomplete="off" placeholder="127.0.0.1 or 127.0.0.1:8888" id="ip" list="ip-list">
+                    <input type="text" placeholder="127.0.0.1 or 127.0.0.1:8888" id="ip" list="ip-list">
                     <datalist id="ip-list"></datalist>
                 </div>
                 <div class="field">

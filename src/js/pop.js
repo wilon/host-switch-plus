@@ -50,12 +50,13 @@ $(function() {
     // export to json
     $('#export').on('click', function() {
         var hosts = model.getHosts();
+        console.log(hosts)
         var str = ''
         for (var i in hosts) {
             var h = hosts[i]
             str += h.ip + " " + h.domain + " " + h.tags.toString() + " " + h.note + "\n";
         }
-        downloadFile('host-switch-plus.json', str);
+        // downloadFile('snail-hosts.json', str);
     });
 
     function downloadFile(fileName, content) {

@@ -381,7 +381,7 @@ lang.init({});
                     scope: 'regular'
                 }, function() {
                 });
-                console.log(results, data)
+                console.log(data)
             } else {
                 chrome.proxy.settings.set({
                     value: {
@@ -527,6 +527,9 @@ lang.init({});
 
     function saveData(name, value) {
         localStorage[name] = JSON.stringify(value);
+        // chrome.storage.sync.set({name: JSON.stringify(value)}, function() {
+        //     console.log('snail-host-' + name, JSON.stringify(value))
+        // });
         refreshDataForBk();
     }
 

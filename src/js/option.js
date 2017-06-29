@@ -70,6 +70,7 @@ $(function() {
             $('#proxy').val(id);
             model.changeProxy(id);
             this.reload();
+            formWarning('Save success.');
         }
     }
 
@@ -156,11 +157,12 @@ $(function() {
         var infos = $('#bulkAdd').val().split('\n');
         var rules = /^\s*([^\s]+)\s*([^\s]+)\s*([^\s]+)?\s*([^\s]+)?\s*$/;
         for (var i = 0, len = infos.length; i < len; i++) {
-            var info = $.trim(infos[i]);
-            if (info.indexOf('#') === 0) {
+            var ipInfo = $.trim(infos[i]);
+            if (ipInfo.indexOf('#') === 0) {
                 continue;
             }
-            var info = rules.exec(info);
+            var info = rules.exec(ipInfo) || [];
+            console.log(info)
             if (info.length >= 3) {
                 var item = {
                     'ip': $.trim(info[1]),
@@ -270,13 +272,20 @@ $(function() {
 
     // export to json
     $('#export').on('click', function() {
+        var br = '<br>';
         var hosts = model.getHosts();
-        var str = ''
+        var str = br+"snail-hosts.data"+br
         for (var i in hosts) {
             var h = hosts[i]
-            str += h.ip + " " + h.domain + " " + h.tags.toString() + " " + h.note + "\n";
+            str += h.ip + " " + h.domain + " " + h.tags.toString() + br;
         }
-        downloadFile('host-switch-plus.json', str);
+        var proxy = model.proxy();
+        str += br + proxy.name + br;
+        proxy.use.map(function(elem) {
+            str += elem + br;
+            return;
+        })
+        downloadFile('snail-hosts-settings.html', str);
     });
 
     function downloadFile(fileName, content) {

@@ -27,16 +27,6 @@ gulp.task('popup-js', function() {
         }))
         .pipe(gulp.dest('./static/'))
 });
-gulp.task('script-js', function() {
-    return gulp.src([
-            './src/js/script.js'
-            ])
-        .pipe(concat('script.min.js'))
-        .pipe(uglify({
-            mangle: false
-        }))
-        .pipe(gulp.dest('./static/'))
-});
 gulp.task('background-js', function() {
     return gulp.src([
             './src/js/background.js'
@@ -59,13 +49,11 @@ gulp.task('css', function () {
 // 默认任务
 gulp.task('default', [
     'popup-js',
-    'script-js',
     'background-js',
     'css'
 ], function () {
     gulp.watch('./src/js/*.js', [
         'popup-js',
-        'script-js',
         'background-js'
         ]);
     gulp.watch('./src/css/*.css', ['css']);
