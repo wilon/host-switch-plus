@@ -319,16 +319,17 @@ lang.init({});
     model.setStatus = function(checked) {
             var proxy = this.proxy(),
                 default_mode = proxy.value,
-                use_domain = proxy.use;
+                duse_domain = proxy.use;
             saveData('status', checked);
             this.checked = checked;
 
             var script = '';
 
             if (this.checked) {
-
+                // 自定义 hosts
                 var results = model.getEnabledHosts();
-                use_domain.map(function(domain) {
+                // 不走代理的设置
+                duse_domain.map(function(domain) {
                     if (domain == '') return;
                     results.push({
                         domain: domain,
@@ -358,19 +359,20 @@ lang.init({});
                         port = ip_port[ip_port.length - 1];
                     }
 
-                    if (elem.ip == false) {
+                    // if (elem.ip == false) {
                         script += 'return "DIRECT";';
-                    } else if (typeof(elem.proxy) != 'undefined') {
-                        script += 'return "' + elem.proxy + '";';
-                    } else {
-                        script += 'return "PROXY ' + elem.ip + ':' + port + '; DIRECT";';
-                    }
+                    // } else if (typeof(elem.proxy) != 'undefined') {
+                    //     script += 'return "' + elem.proxy + '";';
+                    // } else {
+                        // script += 'return "DIRECT";';
+                    // }
                     script += "\n";
                     return;
                 })
+                console.log(default_mode)
 
                 var data = 'function FindProxyForURL(url,host){ \n if(shExpMatch(url,"http:*") || shExpMatch(url,"https:*")){if(isPlainHostName(host)){return "DIRECT";' +
-                    script + '}else{return "DIRECT";}}else{return "SYSTEM";}}';
+                    script + '}else{return "' + default_mode + '";}}else{return "SYSTEM";}}';
                 chrome.proxy.settings.set({
                     value: {
                         mode: 'pac_script',
