@@ -359,17 +359,19 @@ lang.init({});
                         port = ip_port[ip_port.length - 1];
                     }
 
-                    // if (elem.ip == false) {
+                    // 错误的
+                    if (elem.ip == false) {
                         script += 'return "DIRECT";';
-                    // } else if (typeof(elem.proxy) != 'undefined') {
-                    //     script += 'return "' + elem.proxy + '";';
-                    // } else {
-                        // script += 'return "DIRECT";';
-                    // }
+                    // 有代理设置的，就是不走代理的
+                    } else if (typeof(elem.proxy) != 'undefined') {
+                        script += 'return "DIRECT";';
+                    // 其他的就是：自定义hosts
+                    } else {
+                        script += 'return "PROXY ' + elem.ip + ':' + port + '; DIRECT";';
+                    }
                     script += "\n";
                     return;
                 })
-                console.log(default_mode)
 
                 var data = 'function FindProxyForURL(url,host){ \n if(shExpMatch(url,"http:*") || shExpMatch(url,"https:*")){if(isPlainHostName(host)){return "DIRECT";' +
                     script + '}else{return "' + default_mode + '";}}else{return "SYSTEM";}}';
