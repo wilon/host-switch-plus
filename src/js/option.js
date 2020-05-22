@@ -6,19 +6,31 @@
  * Updated by Riant at 2015-04-16
  */
 
-$(function() {
+$(function () {
 
     // Data model
-    var model = window.Model;
+    let model = window.Model;
 
     // Load domain & tags
     setTimeout(function () {
-        var kw = model.getkws()[0] || '';
+        let kw = model.getkws()[0] || '';
         $('#search-input').val(kw);
         window.Table.search(kw);
     });
 
-    var settingsForm = {
+    // Status
+    let loadStatus = function () {
+        use = model.getStatus()
+        $("#status").prop("checked", use);
+        $("#status").next().text(use ? lang.translate('On') : lang.translate('Off'));
+    }
+    loadStatus()
+    $("#status").prop('checked', model.getStatus()).change(function () {
+        model.setStatus(this.checked);
+        loadStatus()
+    });
+
+    let settingsForm = {
         get: function () {
             return {
                 id: Number($('#proxy-id').val()),
@@ -34,16 +46,20 @@ $(function() {
             $('#proxy-use').val(proxy.use.join('\n'));
         },
         reload: function () {
-            var proxyData = model.getProxy()
-                proxyHtml = ''
-            proxyData.map(function(elem, id) {
-                var selected = elem.status == 1 ? 'selected' : '';
-                proxyHtml += '<option value="'+id+'" '+selected+'>'+elem.name+'</option>'
+            let proxyData = model.getProxy()
+            proxyHtml = ''
+            let proxy = proxyData[0]
+            let id = 0
+            proxyData.map(function (elem, index) {
+                let selected = elem.status == 1 ? 'selected' : '';
+                proxyHtml += '<option value="' + index + '" ' + selected + '>' + elem.name + '</option>'
+                if (elem.status == 1) {
+                    proxy = elem
+                    id = index
+                }
             });
             $('#proxy').html(proxyHtml);
-            var id = $('#proxy').val(),
-                proxy = model.getProxy(id)
-            if (id > 1) {
+            if (proxy) {
                 this.set(id, proxy);
             } else {
                 this.reset()
@@ -57,7 +73,7 @@ $(function() {
             });
         },
         submit: function () {
-            var proxy = this.get();
+            let proxy = this.get();
             if (proxy.name == '') {
                 formWarning('Please input Proxy Name.');
                 return false;
@@ -66,34 +82,33 @@ $(function() {
                 formWarning('Please input Proxy Value.');
                 return false;
             }
-            var id = model.addProxy(proxy);
-            $('#proxy').val(id);
-            model.changeProxy(id);
+            let id = model.addOrUpdateProxy(proxy);
+            model.useProxy(id);
             this.reload();
             formWarning('Save success.');
         }
     }
 
-    setTimeout(function(){
+    setTimeout(function () {
         settingsForm.reload();
     })
-    $('#proxy').on('change', function() {
-        var id = $(this).val();
-        model.changeProxy(id);
+    $('#proxy').on('change', function () {
+        let id = $(this).val();
+        model.useProxy(id);
         settingsForm.reload();
     });
-    $('#settings').on('submit', function() {
+    $('#settings').on('submit', function () {
         settingsForm.submit();
         return false;
     });
 
 
-    $('#language').on('change', function() {
+    $('#language').on('change', function () {
         window.lang.change($(this).val());
     });
 
-    Date.prototype.Format = function(fmt) {
-        var o = {
+    Date.prototype.Format = function (fmt) {
+        let o = {
             "M+": this.getMonth() + 1,
             "d+": this.getDate(),
             "h+": this.getHours(),
@@ -103,7 +118,7 @@ $(function() {
             "S": this.getMilliseconds()
         };
         if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-        for (var k in o)
+        for (let k in o)
             if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
         return fmt;
     }
@@ -111,13 +126,13 @@ $(function() {
     function formWarning(text) {
         $('.formWarning span').text(text);
         $('.formWarning').slideDown();
-        setTimeout(function(){
+        setTimeout(function () {
             $('.formWarning').slideUp();
         }, 3000)
     }
 
-    $('#addForm').on('submit', function() {
-        var info = {
+    $('#addForm').on('submit', function () {
+        let info = {
             'id': Number($('#item-id').val()),
             'ip': $('#ip').val(),
             'domain': $('#domain').val(),
@@ -135,36 +150,35 @@ $(function() {
             return false;
         }
 
-        var add_tags = $('#add_labels').val().split(',');
-        $(add_tags).each(function(i, v) {
+        let add_tags = $('#add_labels').val().split(',');
+        $(add_tags).each(function (i, v) {
             if (v) {
                 info.tags.push(v);
             }
         });
 
-        $('#div_labels input[type="checkbox"]:checked').each(function() {
+        $('#div_labels input[type="checkbox"]:checked').each(function () {
             info.tags.push(this.value);
         });
 
         model.addHost(info);
         $('#listBtn').trigger('click');
         window.Table.search($('#search-input').val());
-        $('#host-'+info.id).addClass('editting');
+        $('#host-' + info.id).addClass('editting');
         return false;
     });
 
-    $('#bulkForm').on('submit', function() {
-        var infos = $('#bulkAdd').val().split('\n');
-        var rules = /^\s*([^\s]+)\s*([^\s]+)\s*([^\s]+)?\s*([^\s]+)?\s*$/;
-        for (var i = 0, len = infos.length; i < len; i++) {
-            var ipInfo = $.trim(infos[i]);
+    $('#bulkForm').on('submit', function () {
+        let infos = $('#bulkAdd').val().split('\n');
+        let rules = /^\s*([^\s]+)\s*([^\s]+)\s*([^\s]+)?\s*([^\s]+)?\s*$/;
+        for (let i = 0, len = infos.length; i < len; i++) {
+            let ipInfo = $.trim(infos[i]);
             if (ipInfo.indexOf('#') === 0) {
                 continue;
             }
-            var info = rules.exec(ipInfo) || [];
-            console.log(info)
+            let info = rules.exec(ipInfo) || [];
             if (info.length >= 3) {
-                var item = {
+                let item = {
                     'ip': $.trim(info[1]),
                     'domain': $.trim(info[2]),
                     'tags': '',
@@ -173,10 +187,10 @@ $(function() {
                     'uptime': new Date().Format("yyyy-MM-dd hh:mm:ss")
                 };
 
-                var tags = $.trim(info[3]) ? $.trim(info[3]).split(',') : '';
+                let tags = $.trim(info[3]) ? $.trim(info[3]).split(',') : '';
                 if (tags.length) {
                     item.tags = [];
-                    $(tags).each(function(i) {
+                    $(tags).each(function (i) {
                         if (tags[i] !== '') item.tags.push(tags[i]);
                     });
                 }
@@ -189,12 +203,12 @@ $(function() {
         return false;
     });
 
-    $('#defaultMode').on('submit', function() {
-        var mode = $('#input_mode').val(),
+    $('#defaultMode').on('submit', function () {
+        let mode = $('#input_mode').val(),
             use_val = $('#input_use').val(),
             use_list = use_val.split("\n");
         model.setStatus($("#status")[0].checked, mode, use_list);
-        var res = $('#default option').each(function() {
+        let res = $('#default option').each(function () {
             if ($(this).val() == mode) {
                 return false;
             }
@@ -206,12 +220,12 @@ $(function() {
         return false;
     });
 
-    $('#select_all').change(function() {
+    $('#select_all').change(function () {
         $('#tbody-hosts').find('input[type=checkbox]').prop('checked', this.checked).change();
     });
 
-    $('#tbody-hosts').on('change', 'input', function(e) {
-        var tr = $(this).parents('tr');
+    $('#tbody-hosts').on('change', 'input', function (e) {
+        let tr = $(this).parents('tr');
         if ($(this).prop('checked')) {
             tr.addClass('success');
         } else {
@@ -220,39 +234,38 @@ $(function() {
         return false;
     });
 
-    $('#but_del').click(function() {
-        $('input[type=checkbox]:checked').each(function() {
+    $('#but_del').click(function () {
+        $('input[type=checkbox]:checked').each(function () {
             model.removeHost(this.value);
         });
         $('input[type=checkbox]:checked').parents('tr').remove();
         return false;
     });
 
-    $(document).on('click', '.delete', function() {
+    $(document).on('click', '.delete', function () {
         if (confirm('Delete Confirm')) {
-            var id = $(this).data('id');
+            let id = $(this).data('id');
             model.removeHost(id);
-            $('#host-'+id).remove();
+            $('#host-' + id).remove();
             $('#addForm').reset();
         }
     });
 
-
-    $(document).on('click', '.edit', function() {
-        var id = $(this).data('id');
-        var info = model.getHostById(id);
-        $('#host-'+id).addClass('editting').siblings().removeClass('editting');
+    $(document).on('click', '.edit', function () {
+        let id = $(this).data('id');
+        let info = model.getHostById(id);
+        $('#host-' + id).addClass('editting').siblings().removeClass('editting');
         $('#item-id').val(id);
         $('#ip').val(info.ip);
         $('#domain').val(info.domain);
         $('#div_labels input[type="checkbox"]').attr("checked", false);
-        info.tags.map(function(elem) {
-            $('#div_labels input[type="checkbox"][value="'+elem+'"]').attr('checked', true)
+        info.tags.map(function (elem) {
+            $('#div_labels input[type="checkbox"][value="' + elem + '"]').attr('checked', true)
         })
     })
 
-    $('#add_tab').find('a').on('click', function() {
-        var target = $(this).data('target');
+    $('#add_tab').find('a').on('click', function () {
+        let target = $(this).data('target');
         if (target) {
             if ($(target).is('#addForm')) {
                 $('#item-id').val('');
@@ -268,20 +281,18 @@ $(function() {
 
     if (location.hash === '#hosts') $('#listBtn').trigger('click');
 
-
-
     // export to json
-    $('#export').on('click', function() {
-        var br = '<br>';
-        var hosts = model.getHosts();
-        var str = br+"snail-hosts.data"+br
-        for (var i in hosts) {
-            var h = hosts[i]
+    $('#export').on('click', function () {
+        let br = '<br>';
+        let hosts = model.getHosts();
+        let str = br + "snail-hosts.data" + br
+        for (let i in hosts) {
+            let h = hosts[i]
             str += h.ip + " " + h.domain + " " + h.tags.toString() + br;
         }
-        var proxy = model.proxy();
+        let proxy = model.nowUsedProxy();
         str += br + proxy.name + br;
-        proxy.use.map(function(elem) {
+        proxy.use.map(function (elem) {
             str += elem + br;
             return;
         })
@@ -289,9 +300,9 @@ $(function() {
     });
 
     function downloadFile(fileName, content) {
-        var aLink = document.createElement('a');
-        var blob = new Blob([content]);
-        var evt = document.createEvent("HTMLEvents");
+        let aLink = document.createElement('a');
+        let blob = new Blob([content]);
+        let evt = document.createEvent("HTMLEvents");
         evt.initEvent("click", false, false);
         aLink.download = fileName;
         aLink.href = URL.createObjectURL(blob);

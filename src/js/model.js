@@ -17,7 +17,7 @@ var lang = new Lang();
 lang.dynamic('zh_CN', '/src/js/langpack/zh_CN.json');
 lang.init({});
 
-(function(window) {
+(function (window) {
     var model = {};
 
     //推荐的ip
@@ -70,11 +70,11 @@ lang.init({});
     var last_callback_ip = false;
     var last_callback_domain = false;
 
-    model.setAutoIp = function(callback) {
+    model.setAutoIp = function (callback) {
         callback(ips);
         last_callback_ip = callback
     }
-    model.setAutoDomain = function(callback) {
+    model.setAutoDomain = function (callback) {
         callback(domains);
         last_callback_domain = callback
     }
@@ -82,13 +82,13 @@ lang.init({});
     /**
      * 获取标签 有那些
      */
-    model.getTags = function() {
+    model.getTags = function () {
         return loadData('tags');
     }
 
 
     //添加标签
-    model.addTag = function(tagname, description) {
+    model.addTag = function (tagname, description) {
         var tags = model.getTags();
         tags[name] = {
             desc: description
@@ -97,13 +97,13 @@ lang.init({});
     }
 
     //删除标签
-    model.removeTag = function(tagname) {
+    model.removeTag = function (tagname) {
         var tags = model.getTags();
         delete tags[name];
     }
 
     //获取列表
-    model.getHosts = function() {
+    model.getHosts = function () {
         var result = []
         var hosts = loadData('hosts');
         for (var id in hosts) {
@@ -120,16 +120,16 @@ lang.init({});
         return hosts[id];
     }
 
-    model.sortHostsResult = function(result){
-        return result.sort(function(x, y){
-                var a = Number(x.order),
-                    b = Number(y.order);
-                return (isNaN(a) ? 1 : a) < (isNaN(b) ? 1 : b);
-            });
+    model.sortHostsResult = function (result) {
+        return result.sort(function (x, y) {
+            var a = Number(x.order),
+                b = Number(y.order);
+            return (isNaN(a) ? 1 : a) < (isNaN(b) ? 1 : b);
+        });
     }
 
     //添加主机
-    model.addHost = function(info, enable) {
+    model.addHost = function (info, enable) {
         if (info.id) {
             model.updateHost(info);
         } else {
@@ -158,12 +158,12 @@ lang.init({});
     }
 
 
-    model.clearkws = function() {
+    model.clearkws = function () {
         saveData('kws', [])
 
     }
 
-    model.getkws = function() {
+    model.getkws = function () {
         var kws = loadData('kws');
         if (!kws) {
             kws = [];
@@ -171,7 +171,7 @@ lang.init({});
         return kws;
     }
 
-    model.saveKw = function(kw) {
+    model.saveKw = function (kw) {
         var kws = loadData('kws');
         if (!kws || !kws.splice) {
             kws = [];
@@ -191,10 +191,10 @@ lang.init({});
         saveData('kws', kws);
     }
 
-    model.search = function(kw) {
+    model.search = function (kw) {
         if (typeof kw !== 'string') kw = '';
         model.saveKw(kw);
-        var hosts = model.getHosts().filter(function(host) {
+        var hosts = model.getHosts().filter(function (host) {
             if (host.ip == '' || host.domain == '') return false;
             if (!kw) return true;
             var regStr = kw.toLowerCase().replace(/[\s]+/g, "(.*?)"),
@@ -254,15 +254,15 @@ lang.init({});
                 });
             }
         }
-        if( untag ) result.push({name: '', count: untag});
+        if (untag) result.push({ name: '', count: untag });
         return result;
     }
 
-    model.getStatus = function() {
+    model.getStatus = function () {
         return loadData('status') ? loadData('status') : 0;
     }
 
-    model.getEnabledHosts = function() {
+    model.getEnabledHosts = function () {
         var results = [];
         var hosts = model.getHosts();
         //别名问题
@@ -274,7 +274,7 @@ lang.init({});
         var result_map = {};
 
         //分析别名
-        $(hosts).each(function(i, v) {
+        $(hosts).each(function (i, v) {
             if (v.status == 1) {
                 if (is_ip.test(v.ip) && is_hostname.test(v.domain)) {
                     host_alisa[v.domain] = v.ip + '[@]' + v.id;
@@ -283,7 +283,7 @@ lang.init({});
             }
         });
 
-        $(hosts).each(function(i, v) {
+        $(hosts).each(function (i, v) {
             if (v.status == 1) {
                 //使用了别名
                 if (!is_ip.test(v.ip) && is_hostname.test(v.ip) && host_alisa[v.ip]) {
@@ -311,92 +311,95 @@ lang.init({});
     }
 
     //重新加载
-    model.reload = function() {
+    model.reload = function () {
         model.setStatus(loadData('status'));
     }
 
     //开关,启用暂停
-    model.setStatus = function(checked) {
-            var proxy = this.proxy(),
-                default_mode = proxy.value,
-                duse_domain = proxy.use;
-            saveData('status', checked);
-            this.checked = checked;
+    model.setStatus = function (checked) {
+        var proxy = this.nowUsedProxy(),
+            proxy_mode = proxy.value,
+            use_domain = proxy.use;
+        saveData('status', checked);
+        this.checked = checked;
 
-            var script = '';
+        var script = '';
 
-            if (this.checked) {
-                // 自定义 hosts
-                var results = model.getEnabledHosts();
-                // 不走代理的设置
-                duse_domain.map(function(domain) {
-                    if (domain == '') return;
-                    results.push({
-                        domain: domain,
-                        ip: '-1',
-                        proxy: default_mode
-                    })
-                    return;
+        if (this.checked) {
+            // 自定义 hosts
+            var results = model.getEnabledHosts();
+            // 走代理的设置
+            use_domain.map(function (domain) {
+                if (domain == '') return;
+                results.push({
+                    domain: domain,
+                    ip: '-1',
+                    proxy: proxy_mode
                 })
-                // 每一行IP设置规则
-                results.map(function(elem) {
-                    if (elem.domain == '') return;
-                    var port = 80;
-                    // 设置条件
-                    if (elem.domain.indexOf('*') != -1) {
-                        script += '}else if(shExpMatch(host,"' + elem.domain + '")){';
-                    } else if (elem.domain.indexOf(':') != -1) {
-                        var t = elem.domain.split(':');
-                        port = t[1];
-                        script += '}else if(shExpMatch(url,"http://' + elem.domain + '/*")){';
-                    } else {
-                        script += '}else if(host == "' + elem.domain + '"){';
-                    }
-                    // 设置端口
-                    if (elem.ip.indexOf(':') > -1) {
-                        var ip_port = elem.ip.split(':');
-                        elem.ip = ip_port[ip_port.length - 2];
-                        port = ip_port[ip_port.length - 1];
-                    }
+                return;
+            })
+            // 每一行IP设置规则
+            results.map(function (elem) {
+                if (elem.domain == '') return;
+                var port = 80;
+                // 设置条件
+                if (elem.domain.indexOf('*') != -1) {
+                    script += '}else if(shExpMatch(host,"' + elem.domain + '")){';
+                } else if (elem.domain.indexOf(':') != -1) {
+                    var t = elem.domain.split(':');
+                    port = t[1];
+                    script += '}else if(shExpMatch(url,"http://' + elem.domain + '/*")){';
+                } else {
+                    script += '}else if(host == "' + elem.domain + '"){';
+                }
+                // 设置端口
+                if (elem.ip.indexOf(':') > -1) {
+                    var ip_port = elem.ip.split(':');
+                    elem.ip = ip_port[ip_port.length - 2];
+                    port = ip_port[ip_port.length - 1];
+                }
 
-                    // 错误的
-                    if (elem.ip == false) {
-                        script += 'return "DIRECT";';
-                    // 有代理设置的，就是不走代理的
-                    } else if (typeof(elem.proxy) != 'undefined') {
-                        script += 'return "DIRECT";';
+                // 错误的
+                if (elem.ip == false) {
+                    script += 'return "DIRECT";';
+                    // 有代理设置的，就是走代理的
+                } else if (typeof (elem.proxy) != 'undefined') {
+                    script += 'return "' + elem.proxy + '";';
                     // 其他的就是：自定义hosts
-                    } else {
-                        script += 'return "PROXY ' + elem.ip + ':' + port + '; DIRECT";';
-                    }
-                    script += "\n";
-                    return;
-                })
+                } else {
+                    script += 'return "PROXY ' + elem.ip + ':' + port + '; DIRECT";';
+                }
+                script += "\n";
+                return;
+            })
 
-                var data = 'function FindProxyForURL(url,host){ \n if(shExpMatch(url,"http:*") || shExpMatch(url,"https:*")){if(isPlainHostName(host)){return "DIRECT";' +
-                    script + '}else{return "' + default_mode + '";}}else{return "SYSTEM";}}';
-                chrome.proxy.settings.set({
-                    value: {
-                        mode: 'pac_script',
-                        pacScript: {
-                            data: data
-                        }
-                    },
-                    scope: 'regular'
-                }, function() {
-                });
-                console.log(data)
-            } else {
-                chrome.proxy.settings.set({
-                    value: {
-                        mode: 'system'
-                    },
-                    scope: 'regular'
-                }, $.noop);
-            }
+            // 有设置host的走host
+            // 有设置proxy的走proxy
+            // 其他走系统
+            var chromeProxyStr = 'function FindProxyForURL(url,host){ \n if(shExpMatch(url,"http:*") || shExpMatch(url,"https:*")){if(isPlainHostName(host)){return "DIRECT";' +
+                script + '}else{return "DIRECT";}}else{return "DIRECT";}}';
+            console.log(chromeProxyStr);
+            chrome.proxy.settings.set({
+                value: {
+                    mode: 'pac_script',
+                    pacScript: {
+                        data: chromeProxyStr
+                    }
+                },
+                scope: 'regular'
+            }, function () {
+            });
+        } else {
+            chrome.proxy.settings.set({
+                value: {
+                    mode: 'system'
+                },
+                scope: 'regular'
+            }, $.noop);
         }
-        //移除主机
-    model.removeHost = function(id) {
+    }
+    //移除主机
+    model.removeHost = function (id) {
         var hosts = loadData('hosts');
         model.disableHosts(id);
         delete hosts[id];
@@ -404,7 +407,7 @@ lang.init({});
         model.reload();
     }
 
-    model.enableHosts = function(ids) {
+    model.enableHosts = function (ids) {
         var hosts = loadData('hosts');
         for (var i = 0; i < ids.length; i++) {
             if (hosts[ids[i]]) {
@@ -427,7 +430,7 @@ lang.init({});
         model.reload();
     }
 
-    model.updateHost = function(info) {
+    model.updateHost = function (info) {
         var hosts = loadData('hosts');
         var origin_status = (hosts[info.id]).status;
 
@@ -444,7 +447,7 @@ lang.init({});
     /**
      * porxy
      */
-    model.getProxy = function (id) {
+    model.getProxy = function (name) {
         var proxyData = loadData('proxy') || [];
         if (proxyData.length == 0) {
             proxyData[0] = {
@@ -461,19 +464,28 @@ lang.init({});
             }
             proxyData[2] = {
                 name: 'Lantern',
-                value: 'PROXY 127.0.0.1:50302; DIRECT',
+                value: 'PROXY 127.0.0.1:51967; DIRECT',
                 use: [],
                 status: 0
             }
             saveData('proxy', proxyData);
         }
-        return typeof id == 'undefined' ? proxyData : proxyData[id];
+        if (typeof name == 'undefined') {
+            return proxyData;
+        } else {
+            let proxy = proxyData.map(function (elem, index) {
+                if (elem.name == name) {
+                    return elem;
+                }
+            })
+            return proxy;
+        }
     }
 
-    model.proxy = function () {
+    model.nowUsedProxy = function () {
         var proxyData = loadData('proxy') || [],
             res = proxyData[0]
-        proxyData.map(function(elem, index) {
+        proxyData.map(function (elem, index) {
             if (elem.status == 1) {
                 res = elem;
                 return;
@@ -482,10 +494,10 @@ lang.init({});
         return res;
     }
 
-    model.changeProxy = function (id) {
+    model.useProxy = function (id) {
         var proxyData = loadData('proxy') || [];
         try {
-            proxyData.map(function(elem, index) {
+            proxyData.map(function (elem, index) {
                 if (id == index) {
                     elem.status = 1;
                 } else {
@@ -499,32 +511,22 @@ lang.init({});
         model.reload();
     }
 
-    model.addProxy = function (proxy) {
-        if (proxy.id > 0) {
-            return model.updateProxy(proxy);
+    model.addOrUpdateProxy = function (proxy) {
+        let proxyData = loadData('proxy');
+        for (let i = 0; i < proxyData.length; i++) {
+            if (proxy.name == proxyData[i].name) {
+                proxyData[i] = proxy
+                saveData('proxy', proxyData);
+                return i;
+            }
         }
-        var proxyData = loadData('proxy');
-        var id = proxyData.length;
-        proxy.status = 0;
-        proxyData[id] = proxy;
+        proxyData.push(proxy);
         saveData('proxy', proxyData);
-        return id;
+        return proxyData.length - 1;
     }
 
-    model.updateProxy = function (proxy) {
-
-        if (typeof proxy.id != 'number') return;
-        if (proxy.id < 1) return proxy.id;
-
-        var proxyData = loadData('proxy') || [];
-        proxyData[proxy.id] = proxy;
-        saveData('proxy', proxyData);
-
-        return proxy.id;
-    }
-
-    function refreshDataForBk(do_off){
-        chrome.extension.sendRequest(do_off ? [] : model.getEnabledHosts(), function(data){
+    function refreshDataForBk(do_off) {
+        chrome.extension.sendRequest(do_off ? [] : model.getEnabledHosts(), function (data) {
             // do Something;
         });
     }
